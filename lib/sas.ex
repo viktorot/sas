@@ -1,18 +1,38 @@
 defmodule Sas do
 
-  def graduate do
+  def main(args) do
+    opts = args |> parse_args
+
+    name =
+    case opts[:name] do
+      nil ->
+        "SAŠO"
+      val ->
+         val
+    end
+
+    IO.puts ["Looking for => ", name]
+
+    graduate name
+  end
+
+  defp parse_args(args) do
+    {options, _, _} = OptionParser.parse(args,
+      switches: [name: :string]
+    )
+    options
+  end
+
+  def graduate(nemo) do
     response = HTTPotion.get "http://feri.um.si"
     html = response.body
-
-    # who are we looking for
-    nemo = "user"
 
     case parse(html, nemo) do
       {:ok, data} ->
         IO.puts "Possible candidates:"
         Enum.each(data, fn(c) -> pretty_print_candidate(c) end)
       :nothing ->
-        "No Saso found :("
+        IO.puts ["No ", nemo, " found :("]
     end
   end
 
